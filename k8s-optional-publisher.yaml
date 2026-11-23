@@ -1,0 +1,46 @@
+# Apply this Job only AFTER the streaming consumer has produced window_updates files.
+# Before re-running, delete this completed Job: kubectl -n nexus delete job nexus-iceberg-publish
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nexus-iceberg-publish
+  namespace: nexus
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      securityContext:
+        fsGroup: 185
+      containers:
+        - name: publisher
+          image: nexus-streaming:0.2.0
+          imagePullPolicy: IfNotPresent
+          command: ["/opt/spark/bin/spark-submit"]
+          args:
+            - "--master"
+            - "local[2]"
+            - "--driver-memory"
+            - "2g"
+            - "--packages"
+            - "org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.10.1"
+            - "--class"
+            - "com.nexus.IcebergPublishJob"
+            - "/opt/nexus/nexus.jar"
+          envFrom:
+            - configMapRef:
+                name: nexus-config
+          volumeMounts:
+            - name: outputs
+              mountPath: /app/output
+          resources:
+            requests:
+              cpu: 500m
+              memory: 2Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+      volumes:
+        - name: outputs
+          persistentVolumeClaim:
+            claimName: nexus-stream-output

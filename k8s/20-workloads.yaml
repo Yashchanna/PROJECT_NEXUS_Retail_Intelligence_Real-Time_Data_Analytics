@@ -1,0 +1,147 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nexus-create-topic
+  namespace: nexus
+spec:
+  backoffLimit: 6
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: create-topic
+          image: apache/kafka:3.9.1
+          command: ["/bin/bash", "-ec"]
+          args:
+            - |
+              for i in $(seq 1 60); do
+                if /opt/kafka/bin/kafka-topics.sh --bootstrap-server nexus-kafka:9092 --list >/dev/null 2>&1; then break; fi
+                sleep 5
+              done
+              /opt/kafka/bin/kafka-topics.sh --bootstrap-server nexus-kafka:9092 \
+                --create --if-not-exists --topic retail-order-events --partitions 1 --replication-factor 1
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nexus-producer
+  namespace: nexus
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: nexus-producer
+  template:
+    metadata:
+      labels:
+        app: nexus-producer
+    spec:
+      containers:
+        - name: producer
+          image: nexus-producer:0.2.0
+          imagePullPolicy: IfNotPresent
+          
+          envFrom:
+            - configMapRef:
+                name: nexus-config
+            - secretRef:
+                name: nexus-runtime-secrets
+                optional: true
+          env:
+            - name: HOME
+              value: "/tmp"
+            - name: SPARK_SUBMIT_OPTS
+              value: "-Divy.home=/tmp/.ivy2 -Divy.cache.dir=/tmp/.ivy2/cache"
+          ports:
+            - name: unused
+              containerPort: 8080
+          # For this training replay, process probes are basic.
+          # A real service should expose Kafka-aware readiness/health endpoints.
+          readinessProbe:
+            exec:
+              command: ["/bin/sh", "-c", "kill -0 1"]
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["/bin/sh", "-c", "kill -0 1"]
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nexus-streaming
+  namespace: nexus
+spec:
+  replicas: 1
+  # Single writer to the same local checkpoint PVC; avoid two pods writing it.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: nexus-streaming
+  template:
+    metadata:
+      labels:
+        app: nexus-streaming
+    spec:
+      securityContext:
+        fsGroup: 185
+      containers:
+        - name: streaming
+          image: nexus-streaming:0.2.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: nexus-config
+            - secretRef:
+                name: nexus-runtime-secrets
+                optional: true
+          ports:
+            - containerPort: 4040
+              name: spark-ui
+          volumeMounts:
+            - name: outputs
+              mountPath: /app/output
+          startupProbe:
+            tcpSocket:
+              port: spark-ui
+            periodSeconds: 10
+            failureThreshold: 60
+          readinessProbe:
+            tcpSocket:
+              port: spark-ui
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: spark-ui
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "1"
+              memory: 3Gi
+            limits:
+              cpu: "3"
+              memory: 5Gi
+      volumes:
+        - name: outputs
+          persistentVolumeClaim:
+            claimName: nexus-stream-output

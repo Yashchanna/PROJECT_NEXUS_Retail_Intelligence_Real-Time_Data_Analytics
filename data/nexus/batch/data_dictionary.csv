@@ -1,0 +1,31 @@
+dataset,field,type,description,rule_or_note
+products,product_id,string,Unique product id (PRDnnn),Primary key; required
+products,product_name,string,Product name,Required
+products,category,string,"Electronics, Apparel, Home, Grocery, Beauty, Sports",Required; standardise casing
+products,unit_price,decimal,List price in INR,> 0
+products,active,string,Y or N,Allowed set
+customers,customer_id,string,Unique customer id (CUSTnnn),Primary key; required
+customers,customer_name,string,Customer name,Required
+customers,email,string,Contact email,Valid email format
+customers,city,string,City,Trim and standardise casing
+customers,signup_date,date,YYYY-MM-DD,Valid date; not in the future
+orders,order_id,string,Unique order id (ORDnnnnnn),Primary key; required
+orders,customer_id,string,FK to customers,Required; must exist
+orders,product_id,string,FK to products,Required; must exist
+orders,quantity,integer,Units ordered,> 0
+orders,order_date,date,YYYY-MM-DD (some rows DD-MM-YYYY),Valid date; not in the future
+orders,order_status,string,"PLACED, SHIPPED, DELIVERED, CANCELLED, RETURNED (raw values vary)",Standardise. Sales exclude CANCELLED
+orders,last_updated,timestamp,YYYY-MM-DD HH:MM:SS; latest version wins (added for dedupe/MERGE),Used to resolve duplicates
+orders_v2,sales_channel,string,"WEB, MOBILE_APP or STORE",New column for schema evolution
+orders_v2,discount_amount,decimal,Discount in INR,>= 0; new column for schema evolution
+order_events,event_id,string,Unique event id (EVTnnnnnn),Required; duplicates possible
+order_events,order_id,string,Order id,Required
+order_events,customer_id,string,FK to customers,Must exist
+order_events,product_id,string,FK to products,Must exist
+order_events,quantity,integer,Units,> 0
+order_events,unit_price,decimal,Price per unit in INR,> 0
+order_events,event_type,string,"ORDER_CREATED, ORDER_UPDATED, ORDER_CANCELLED",Allowed set
+order_events,event_time,timestamp (UTC),When the order action happened - use for windows and watermark,Required; ISO-8601
+order_events,ingest_time,timestamp (UTC),When the event reached Kafka/platform (added for arrival order and late data),Required
+order_events,sales_channel,string,Only in last micro-batch,Schema evolution field
+order_events,discount_amount,decimal,Only in last micro-batch,Schema evolution field

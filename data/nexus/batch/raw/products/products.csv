@@ -1,0 +1,28 @@
+product_id,product_name,category,unit_price,active
+PRD001,Wireless Earbuds,Electronics,2499.00,Y
+PRD002,Smart Watch,Electronics,4999.00,Y
+PRD003,Bluetooth Speaker,Electronics,1899.00,Y
+PRD004,Power Bank 20000mAh,Electronics,-1599.00,Y
+PRD005,Cotton T-Shirt,Apparel,599.00,Y
+PRD006,Denim Jeans,Apparel,1799.00,Y
+PRD007,Running Shoes,Apparel,3299.00,Y
+PRD008,Hoodie,Apparel,1499.00,Y
+PRD009,Air Fryer,Home,0,Y
+PRD010,Cookware Set,Home,2999.00,Y
+PRD011,LED Desk Lamp,Home,899.00,Y
+PRD012,Bedsheet Set,Home,1299.00,Y
+PRD013,Basmati Rice 5kg,Grocery,649.00,Y
+PRD014,Cold Pressed Oil 1L,Grocery,449.00,N
+PRD015,Assorted Nuts 500g,Grocery,699.00,Y
+PRD016,Green Tea 100 bags,,349.00,Y
+PRD017,Face Serum,Beauty,799.00,Y
+PRD018,Sunscreen SPF50,home,449.00,Y
+PRD019,Shampoo 650ml,Beauty,399.00,Y
+PRD020,Perfume 100ml,Beauty,1999.00,Y
+PRD021,Yoga Mat,Sports,699.00,Y
+PRD022,Dumbbell Set 10kg,Sports,1899.00,Y
+PRD023,Cricket Bat,Sports,2799.00,N
+PRD024,Football Size 5,Sports,899.00,Y
+PRD007,Running Shoes,Apparel,3299.00,Y
+PRD011,LED Desk Lamp,Home,949.00,Y
+PRD999,,Misc,100.00,Y

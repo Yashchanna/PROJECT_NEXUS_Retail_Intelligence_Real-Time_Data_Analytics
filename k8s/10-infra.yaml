@@ -1,0 +1,139 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nexus-config
+  namespace: nexus
+data:
+  NEXUS_KAFKA_BOOTSTRAP: "nexus-kafka:9092"
+  NEXUS_KAFKA_TOPIC: "retail-order-events"
+  NEXUS_WINDOW: "5 minutes"
+  NEXUS_WATERMARK: "30 minutes"
+  NEXUS_TRIGGER: "5 seconds"
+  NEXUS_OUTPUT_DIR: "/app/output"
+  NEXUS_SPARK_MASTER: "local[2]"
+  NEXUS_REPLAY_LOOP: "false"
+  NEXUS_IDLE_AFTER: "true"
+  NEXUS_PUBLISH_DELAY: "0.6"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nexus-kafka-data
+  namespace: nexus
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nexus-stream-output
+  namespace: nexus
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 5Gi
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nexus-kafka
+  namespace: nexus
+spec:
+  publishNotReadyAddresses: true
+  selector:
+    app: nexus-kafka
+  ports:
+    - name: kafka
+      port: 9092
+      targetPort: 9092
+    - name: controller
+      port: 29093
+      targetPort: 29093
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nexus-kafka
+  namespace: nexus
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: nexus-kafka
+  template:
+    metadata:
+      labels:
+        app: nexus-kafka
+    spec:
+      containers:
+        - name: kafka
+          image: apache/kafka:3.9.1
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: KAFKA_NODE_ID
+              value: "1"
+            - name: KAFKA_PROCESS_ROLES
+              value: "broker,controller"
+            - name: KAFKA_CONTROLLER_QUORUM_VOTERS
+              value: "1@nexus-kafka:29093"
+            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+              value: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+            - name: KAFKA_LISTENERS
+              value: "CONTROLLER://:29093,PLAINTEXT://:9092"
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: "PLAINTEXT://nexus-kafka:9092"
+            - name: KAFKA_INTER_BROKER_LISTENER_NAME
+              value: "PLAINTEXT"
+            - name: KAFKA_CONTROLLER_LISTENER_NAMES
+              value: "CONTROLLER"
+            - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+              value: "1"
+            - name: KAFKA_TRANSACTION_STATE_LOG_MIN_ISR
+              value: "1"
+            - name: KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
+              value: "1"
+            - name: KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS
+              value: "0"
+            - name: KAFKA_LOG_DIRS
+              value: "/tmp/kraft-combined-logs"
+            - name: CLUSTER_ID
+              value: "4L6g3nShT-eMCtK--X86sw"
+          ports:
+            - containerPort: 9092
+              name: kafka
+          volumeMounts:
+            - name: kafka-store
+              mountPath: /tmp/kraft-combined-logs
+          startupProbe:
+            tcpSocket:
+              port: kafka
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            tcpSocket:
+              port: kafka
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: kafka
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+      volumes:
+        - name: kafka-store
+          persistentVolumeClaim:
+            claimName: nexus-kafka-data

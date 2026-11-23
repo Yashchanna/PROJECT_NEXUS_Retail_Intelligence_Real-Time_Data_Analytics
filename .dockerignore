@@ -1,0 +1,13 @@
+.git
+.bsp
+.bloop
+.idea
+.metals
+.venv
+output
+target
+project/target
+**/__pycache__
+*.pyc
+*.zip
+**/*.log
