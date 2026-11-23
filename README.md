@@ -33,6 +33,8 @@
 
 PROJECT NEXUS unifies historical retail records and live telemetry into a decoupled, scalable, and resilient data platform.
 
+![High Level Architecture](Architecture/High_Level_Architecture.png)
+
 ```mermaid
 flowchart TB
     subgraph INGESTION["1. Ingestion Sources"]
@@ -100,6 +102,8 @@ flowchart TB
 ---
 
 # 🔄 End-to-End Pipeline Flows
+
+![Low Level Design](Architecture/Low_Level_Design.png)
 
 ### Pipeline A: Historical Batch Lakehouse Pipeline
 ```mermaid
@@ -295,6 +299,8 @@ flowchart TD
 
 The analytical core of PROJECT NEXUS is modeled as a high-performance **Star Schema** optimized for OLAP query patterns:
 
+![Star Schema](Architecture/Star_Schema.png)
+
 ```mermaid
 erDiagram
     DIM_CUSTOMER ||--o{ FACT_SALES : "places"
@@ -445,6 +451,9 @@ Total Bronze Ingested: 230
 # 📈 Business KPIs & Analytical Marts
 
 From 90 curated fact transactions, the Gold layer computes executive-ready business metrics:
+
+![Retail Analytics Dashboards](Architecture/Dashboard_Charts_1.png)
+![Product Performance Insights](Architecture/Dashboard_Charts_2.png)
 
 ```mermaid
 pie title Delivered Order Status Distribution
