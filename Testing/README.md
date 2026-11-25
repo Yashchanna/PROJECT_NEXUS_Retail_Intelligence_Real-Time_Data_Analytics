@@ -1,24 +1,33 @@
-﻿# Testing
+﻿# PROJECT NEXUS — Testing Suite
 
-## Streaming Unit Tests
+This directory contains test specifications, automated test scripts, and validation procedures for both the streaming engine and batch processing layers.
 
-ScalaTest:
-src/test/scala/com/nexus/EventTransformsSpec.scala
+## Structure
 
-Run:
+- **`EventTransformsSpec.scala`**: ScalaTest specification covering:
+  - Event payload parsing from JSON and Kafka envelopes.
+  - Event deduplication logic by `event_id`.
+  - Watermark thresholding and late-arriving event handling.
+  - Tumbling window aggregation state transforms.
+- **`check_sample.py`**: Python validation script verifying streaming test micro-batches and event schemas under `Datasets/nexus/streaming/`.
+- **`CI_CD_README.md`**: Guide for continuous integration, GitHub Actions workflow execution, and automated test triggers.
 
+## Running Tests
+
+### 1. Streaming Engine Tests (sbt / ScalaTest)
+Execute tests from the `Development/` or `Real_Time_Streaming/` directory:
 ```bash
-sbt -batch clean test package
+cd Development
+sbt test
 ```
 
-## Batch Quality Validation
+### 2. Streaming Sample Data Verification
+Execute the sample check script:
+```bash
+python Testing/check_sample.py
+```
 
-Batch_Processing/Databricks_Notebooks/04_Data_Quality_Checks.scala
-
-The notebook tests execute in Azure Databricks, not in the
-root streaming sbt build.
-
-## Evidence
-
-Manual runtime tests have been performed during project development.
-A successful GitHub Actions run must be verified after the first push.
+### 3. Batch Layer Quality & Reconciliation Suite
+The 10-point Data Quality Audit executes in Azure Databricks:
+- Notebook: `Data Ingestion/Databricks_Notebooks/04_Data_Quality_Checks.scala`
+- Reconciles Bronze $\rightarrow$ Silver $\rightarrow$ Gold counts, checks uniqueness, and validates revenue aggregates.

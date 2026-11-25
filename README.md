@@ -465,6 +465,82 @@ pie title Delivered Order Status Distribution
 
 ---
 
+# 📁 Repository Structure
+
+The repository is modularly structured according to enterprise data platform architecture standards:
+
+```
+PROJECT_NEXUS_Retail_Intelligence_Real-Time_Data_Analytics/
+├── .github/
+│   └── workflows/
+│       └── ci.yml                          # Continuous Integration & build validation
+├── Architecture/                           # Architectural diagrams, designs & Star Schema
+│   ├── Dashboard_Charts_1.png
+│   ├── Dashboard_Charts_2.png
+│   ├── Dual_Pipeline_Flow.png
+│   ├── High_Level_Architecture.png
+│   ├── Low_Level_Design.png
+│   ├── Pipeline_Orchestration.png
+│   ├── Star_Schema.png
+│   └── README.md
+├── Dashboard/                              # Stakeholder slide decks & presentations (.pptx)
+│   ├── PROJECT_NEXUS_Dual_Pipeline_Architecture.pptx
+│   ├── PROJECT_NEXUS_Executive_Presentation.pptx
+│   ├── PROJECT_NEXUS_Presentation.pptx
+│   ├── PROJECT_NEXUS_Vector_Presentation.pptx
+│   └── README.md
+├── Data Ingestion/                         # Azure Databricks Medallion Lakehouse Notebooks
+│   ├── Databricks_Notebooks/
+│   │   ├── 01_Bronze_Ingestion.scala       # ADLS Gen2 raw -> Bronze Delta tables
+│   │   ├── 02_Silver_Transformation.scala  # Cleansing, quarantine & deduplication
+│   │   ├── 03_Gold_Transformation.scala    # Kimball Star Schema & business marts
+│   │   └── 04_Data_Quality_Checks.scala    # 10-point automated DQ verification
+│   └── README.md
+├── Datasets/                               # Raw & incremental sample retail data
+│   ├── nexus/
+│   │   ├── batch/                          # Historical CSVs (customers, orders, products, updates)
+│   │   └── streaming/                      # Micro-batch JSON & Kafka keyed payloads
+│   └── README.md
+├── Development/                            # Core Scala/Spark streaming engine & configuration
+│   ├── docker/                             # Production Dockerfiles (streaming & producer)
+│   ├── project/                            # sbt build properties & dependencies
+│   ├── src/                                # Scala sources & test suites
+│   ├── build.sbt                           # sbt build definition (Spark 3.5, Iceberg 1.5)
+│   ├── compose.yaml                        # Local Kafka & Redpanda Console stack
+│   ├── requirements.txt                    # Python producer dependencies
+│   └── README.md
+├── Logging/                                # Pipeline run logs & audit evidence
+│   ├── Execution_Evidence/                 # Batch & streaming verification evidence
+│   └── README.md
+├── Real_Time_Streaming/                    # Dedicated end-to-end Real-Time Streaming module
+│   ├── docker/                             # Container specifications
+│   ├── k8s/                                # Kubernetes production manifests
+│   ├── producer/                           # Python Kafka event replayer
+│   ├── scripts/                            # Verification & run scripts
+│   ├── src/                                # Streaming engine & Iceberg publishers
+│   ├── build.sbt                           # Dedicated sbt build
+│   ├── compose.yaml                        # Streaming orchestration compose
+│   ├── requirements.txt                    # Python runtime requirements
+│   └── README.md
+├── Testing/                                # Unit tests, schema checks & CI guidelines
+│   ├── check_sample.py                     # Streaming sample verifier
+│   ├── EventTransformsSpec.scala           # ScalaTest specification
+│   ├── CI_CD_README.md                     # CI/CD operational guide
+│   └── README.md
+├── docs/                                   # Platform documentation & design matrices
+│   ├── delta-vs-iceberg.md                 # Table format evaluation
+│   ├── local-streaming-guide.md            # Developer execution runbook
+│   ├── requirements-matrix.md              # Requirements traceability
+│   ├── star-schema-mapping.md              # Data dictionary & dimensional mappings
+│   └── README.md
+├── .dockerignore
+├── .gitattributes
+├── .gitignore
+└── README.md
+```
+
+---
+
 # 🚀 How to Run & Execute
 
 ### Prerequisites
@@ -483,8 +559,11 @@ cd PROJECT_NEXUS_Retail_Intelligence_Real-Time_Data_Analytics
 
 ### Step 2: Run Real-Time Streaming Pipeline (Local)
 
+You can run the streaming pipeline from either `Real_Time_Streaming/` or `Development/`:
+
 **Terminal 1 — Start Kafka Cluster:**
 ```bash
+cd Real_Time_Streaming
 docker compose up -d
 docker compose ps
 
@@ -498,12 +577,14 @@ docker compose exec kafka /opt/kafka/bin/kafka-topics.sh \
 
 **Terminal 2 — Start Spark Structured Streaming Engine:**
 ```bash
+cd Real_Time_Streaming
 sbt test
 sbt "runMain com.nexus.StreamingJob"
 ```
 
 **Terminal 3 — Replay Sample Event Stream:**
 ```bash
+cd Real_Time_Streaming
 python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
@@ -514,6 +595,7 @@ python producer/replay_events.py --delay 0.6
 
 **Terminal 4 — Publish to Apache Iceberg & Inspect:**
 ```bash
+cd Real_Time_Streaming
 # Run ACID Iceberg MERGE INTO
 sbt "runMain com.nexus.IcebergPublishJob"
 
@@ -524,7 +606,7 @@ sbt "runMain com.nexus.IcebergEvidenceJob"
 ---
 
 ### Step 3: Run Historical Batch Lakehouse (Azure Databricks)
-1. Import notebooks from `Batch_Processing/Databricks_Notebooks/` into your Azure Databricks workspace.
+1. Import notebooks from `Data Ingestion/Databricks_Notebooks/` into your Azure Databricks workspace.
 2. Ensure ADLS Gen2 storage container permissions (`nexusretail2026`).
 3. Run the **`PROJECT_NEXUS_ETL_PIPELINE`** workflow in sequential order:
    - `01_Bronze_Ingestion.scala`
@@ -540,12 +622,14 @@ The streaming pipeline is fully containerized and deployable on Kubernetes.
 
 ```bash
 # Build multi-stage non-root container images
-docker build -t nexus-consumer:1.0 -f docker/Dockerfile.consumer .
-docker build -t nexus-producer:1.0 -f docker/Dockerfile.producer .
+docker build -t nexus-consumer:1.0 -f Real_Time_Streaming/docker/Dockerfile.streaming Real_Time_Streaming
+docker build -t nexus-producer:1.0 -f Real_Time_Streaming/docker/Dockerfile.producer Real_Time_Streaming
 
-# Deploy streaming consumer and persistent volume claims to Kubernetes
-kubectl apply -f k8s/consumer-deployment.yaml
-kubectl get pods -l app=nexus-consumer
+# Deploy streaming consumer and workloads to Kubernetes
+kubectl apply -f Real_Time_Streaming/k8s/00-namespace.yaml
+kubectl apply -f Real_Time_Streaming/k8s/10-infra.yaml
+kubectl apply -f Real_Time_Streaming/k8s/20-workloads.yaml
+kubectl get pods -n nexus-streaming
 ```
 
 ---

@@ -3,7 +3,16 @@ import json
 from collections import Counter
 from pathlib import Path
 
-p = Path(__file__).resolve().parents[1] / "data/nexus/streaming/order_events.jsonl"
+# Search for order_events.jsonl across possible dataset locations
+candidates = [
+    Path(__file__).resolve().parents[2] / "Datasets/nexus/streaming/order_events.jsonl",
+    Path(__file__).resolve().parents[1] / "Datasets/nexus/streaming/order_events.jsonl",
+    Path(__file__).resolve().parents[2] / "data/nexus/streaming/order_events.jsonl",
+    Path(__file__).resolve().parents[1] / "data/nexus/streaming/order_events.jsonl",
+    Path("Datasets/nexus/streaming/order_events.jsonl"),
+    Path("data/nexus/streaming/order_events.jsonl")
+]
+p = next((c for c in candidates if c.exists()), candidates[0])
 rows = [json.loads(line) for line in p.read_text(encoding="utf-8").splitlines() if line.strip()]
 types = Counter(row["event_type"] for row in rows)
 event_ids = Counter(row["event_id"] for row in rows)

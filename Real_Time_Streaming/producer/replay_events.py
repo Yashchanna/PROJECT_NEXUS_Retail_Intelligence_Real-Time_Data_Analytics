@@ -33,9 +33,23 @@ def create_producer(brokers):
             time.sleep(5)
 
 
+def find_default_event_file():
+    candidates = [
+        "Datasets/nexus/streaming/order_events.jsonl",
+        "../Datasets/nexus/streaming/order_events.jsonl",
+        "../../Datasets/nexus/streaming/order_events.jsonl",
+        "data/nexus/streaming/order_events.jsonl",
+        "../data/nexus/streaming/order_events.jsonl"
+    ]
+    for c in candidates:
+        if Path(c).exists():
+            return c
+    return "Datasets/nexus/streaming/order_events.jsonl"
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--file", default=os.getenv("NEXUS_EVENT_FILE", "data/nexus/streaming/order_events.jsonl"))
+    parser.add_argument("--file", default=os.getenv("NEXUS_EVENT_FILE", find_default_event_file()))
     parser.add_argument("--bootstrap", default=os.getenv("NEXUS_KAFKA_BOOTSTRAP", "localhost:9092"))
     parser.add_argument("--topic", default=os.getenv("NEXUS_KAFKA_TOPIC", "retail-order-events"))
     parser.add_argument("--delay", type=float, default=float(os.getenv("NEXUS_PUBLISH_DELAY", "0.6")))
