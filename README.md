@@ -10,7 +10,7 @@
 [![Delta Lake](https://img.shields.io/badge/Delta%20Lake-ACID%20Lakehouse-blue?logo=delta-lake)](https://delta.io/)
 [![Apache Iceberg](https://img.shields.io/badge/Apache%20Iceberg-Table%20Format-cyan?logo=apache-iceberg)](https://iceberg.apache.org/)
 [![Azure Databricks](https://img.shields.io/badge/Azure%20Databricks-Lakehouse-red?logo=databricks)](https://azure.microsoft.com/services/databricks/)
-[![Docker & K8s](https://img.shields.io/badge/Orchestration-Docker%20%7C%20Kubernetes-326CE5?logo=kubernetes)](k8s/)
+[![Docker & K8s](https://img.shields.io/badge/Orchestration-Docker%20%7C%20Kubernetes-326CE5?logo=kubernetes)](Real_Time_Streaming/k8s/)
 
 ---
 
@@ -503,7 +503,7 @@ cd PROJECT_NEXUS_Retail_Intelligence_Real-Time_Data_Analytics
 
 ### Step 2: Run Real-Time Streaming Pipeline (Local)
 
-You can run the streaming pipeline from either `Real_Time_Streaming/` or `Development/`:
+All streaming components are executed from the `Real_Time_Streaming/` directory:
 
 **Terminal 1 — Start Kafka Cluster:**
 ```bash
