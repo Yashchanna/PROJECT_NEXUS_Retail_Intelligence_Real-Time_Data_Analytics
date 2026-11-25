@@ -14,7 +14,7 @@ sbt -batch clean test package
 
 ## Batch Quality Validation
 
-`Data Ingestion/Databricks_Notebooks/04_Data_Quality_Checks.scala`
+`Batch Processing/Databricks_Notebooks/04_Data_Quality_Checks.scala`
 
 The notebook tests execute in Azure Databricks, not in the
 root streaming sbt build.

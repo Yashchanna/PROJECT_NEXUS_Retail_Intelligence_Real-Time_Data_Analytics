@@ -167,7 +167,7 @@ PROJECT_NEXUS_Retail_Intelligence_Real-Time_Data_Analytics/
 │   ├── Dashboard_Charts_2.png
 │   ├── Star_Schema.png
 │   └── README.md
-├── Data Ingestion/                         # Azure Databricks Medallion Lakehouse Notebooks
+├── Batch Processing/                        # Azure Databricks Medallion Lakehouse Notebooks
 │   ├── Databricks_Notebooks/
 │   │   ├── 01_Bronze_Ingestion.scala       # ADLS Gen2 raw -> Bronze Delta tables
 │   │   ├── 02_Silver_Transformation.scala  # Cleansing, quarantine & deduplication
@@ -550,7 +550,7 @@ sbt "runMain com.nexus.IcebergEvidenceJob"
 ---
 
 ### Step 3: Run Historical Batch Lakehouse (Azure Databricks)
-1. Import notebooks from `Data Ingestion/Databricks_Notebooks/` into your Azure Databricks workspace.
+1. Import notebooks from `Batch Processing/Databricks_Notebooks/` into your Azure Databricks workspace.
 2. Ensure ADLS Gen2 storage container permissions (`nexusretail2026`).
 3. Run the **`PROJECT_NEXUS_ETL_PIPELINE`** workflow in sequential order:
    - `01_Bronze_Ingestion.scala`
