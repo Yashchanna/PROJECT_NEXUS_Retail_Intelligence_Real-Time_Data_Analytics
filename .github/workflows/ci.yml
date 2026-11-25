@@ -18,7 +18,7 @@ jobs:
       - name: Install sbt
         uses: sbt/setup-sbt@v1
       - name: Compile and run Scala tests
-        working-directory: Development
+        working-directory: Real_Time_Streaming
         run: sbt -batch clean test package
       - name: Check sample and producer syntax
         run: |

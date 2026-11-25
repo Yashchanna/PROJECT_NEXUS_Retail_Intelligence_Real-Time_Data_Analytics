@@ -162,20 +162,10 @@ PROJECT_NEXUS_Retail_Intelligence_Real-Time_Data_Analytics/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml                          # Continuous Integration & build validation
-├── Architecture/                           # Architectural diagrams, designs & Star Schema
+├── Architecture/                           # Architectural diagrams & Star Schema
 │   ├── Dashboard_Charts_1.png
 │   ├── Dashboard_Charts_2.png
-│   ├── Dual_Pipeline_Flow.png
-│   ├── High_Level_Architecture.png
-│   ├── Low_Level_Design.png
-│   ├── Pipeline_Orchestration.png
 │   ├── Star_Schema.png
-│   └── README.md
-├── Dashboard/                              # Stakeholder slide decks & presentations (.pptx)
-│   ├── PROJECT_NEXUS_Dual_Pipeline_Architecture.pptx
-│   ├── PROJECT_NEXUS_Executive_Presentation.pptx
-│   ├── PROJECT_NEXUS_Presentation.pptx
-│   ├── PROJECT_NEXUS_Vector_Presentation.pptx
 │   └── README.md
 ├── Data Ingestion/                         # Azure Databricks Medallion Lakehouse Notebooks
 │   ├── Databricks_Notebooks/
@@ -185,44 +175,54 @@ PROJECT_NEXUS_Retail_Intelligence_Real-Time_Data_Analytics/
 │   │   └── 04_Data_Quality_Checks.scala    # 10-point automated DQ verification
 │   └── README.md
 ├── Datasets/                               # Raw & incremental sample retail data
-│   ├── nexus/
-│   │   ├── batch/                          # Historical CSVs (customers, orders, products, updates)
-│   │   └── streaming/                      # Micro-batch JSON & Kafka keyed payloads
-│   └── README.md
-├── Development/                            # Core Scala/Spark streaming engine & configuration
-│   ├── docker/                             # Production Dockerfiles (streaming & producer)
-│   ├── project/                            # sbt build properties & dependencies
-│   ├── src/                                # Scala sources & test suites
-│   ├── build.sbt                           # sbt build definition (Spark 3.5, Iceberg 1.5)
-│   ├── compose.yaml                        # Local Kafka & Redpanda Console stack
-│   ├── requirements.txt                    # Python producer dependencies
-│   └── README.md
+│   └── nexus/
+│       ├── batch/                          # Historical CSVs (customers, orders, products, updates)
+│       └── streaming/                      # Micro-batch JSON & Kafka keyed payloads
 ├── Logging/                                # Pipeline run logs & audit evidence
-│   ├── Execution_Evidence/                 # Batch & streaming verification evidence
-│   └── README.md
+│   └── Execution_Evidence/
+│       └── README.md                       # Batch & streaming verification evidence
 ├── Real_Time_Streaming/                    # Dedicated end-to-end Real-Time Streaming module
 │   ├── docker/                             # Container specifications
+│   │   ├── Dockerfile.producer
+│   │   └── Dockerfile.streaming
 │   ├── k8s/                                # Kubernetes production manifests
+│   │   ├── 00-namespace.yaml
+│   │   ├── 10-infra.yaml
+│   │   ├── 15-secrets-empty.yaml
+│   │   ├── 20-workloads.yaml
+│   │   └── k8s-optional-publisher.yaml
 │   ├── producer/                           # Python Kafka event replayer
+│   │   └── replay_events.py
+│   ├── project/                            # sbt build properties
+│   │   └── build.properties
 │   ├── scripts/                            # Verification & run scripts
+│   │   ├── check_sample.py
+│   │   └── run_iceberg_in_docker.sh
 │   ├── src/                                # Streaming engine & Iceberg publishers
+│   │   ├── main/scala/com/nexus/
+│   │   │   ├── EventTransforms.scala
+│   │   │   ├── IcebergEvidenceJob.scala
+│   │   │   ├── IcebergPublishJob.scala
+│   │   │   ├── InspectOutputs.scala
+│   │   │   ├── StreamingJob.scala
+│   │   │   └── VerifyStreamingOutput.scala
+│   │   └── test/scala/com/nexus/
+│   │       └── EventTransformsSpec.scala
 │   ├── build.sbt                           # Dedicated sbt build
 │   ├── compose.yaml                        # Streaming orchestration compose
 │   ├── requirements.txt                    # Python runtime requirements
 │   └── README.md
 ├── Testing/                                # Unit tests, schema checks & CI guidelines
-│   ├── check_sample.py                     # Streaming sample verifier
-│   ├── EventTransformsSpec.scala           # ScalaTest specification
 │   ├── CI_CD_README.md                     # CI/CD operational guide
 │   └── README.md
 ├── docs/                                   # Platform documentation & design matrices
 │   ├── delta-vs-iceberg.md                 # Table format evaluation
 │   ├── local-streaming-guide.md            # Developer execution runbook
+│   ├── requirements-matrix-streaming-initial.md
 │   ├── requirements-matrix.md              # Requirements traceability
-│   ├── star-schema-mapping.md              # Data dictionary & dimensional mappings
-│   └── README.md
+│   ├── requirements-traceability.md
+│   └── star-schema-mapping.md              # Data dictionary & dimensional mappings
 ├── .dockerignore
-├── .gitattributes
 ├── .gitignore
 └── README.md
 ```
