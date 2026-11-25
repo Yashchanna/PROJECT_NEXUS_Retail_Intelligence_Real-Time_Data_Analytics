@@ -11,6 +11,4 @@ Attach sanitized evidence here:
 Previously observed workflow result: SUCCEEDED, four dependent tasks,
 approximately 7 minutes 1 second.
 
-Screenshots are not yet committed in this folder.
 
-Never include tokens, private keys or service credentials.
