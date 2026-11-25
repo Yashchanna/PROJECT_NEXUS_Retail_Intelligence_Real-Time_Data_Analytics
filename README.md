@@ -158,53 +158,73 @@ flowchart LR
 # 📂 Project Structure
 
 ```
-PROJECT_NEXUS/
+PROJECT_NEXUS_Retail_Intelligence_Real-Time_Data_Analytics/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml                      # GitHub Actions automated build, test & Docker verification
-├── Architecture/
-│   └── README.md                       # High-level architecture documentation & pipeline designs
-├── Batch_Processing/
+│       └── ci.yml                          # Continuous Integration & build validation
+├── Architecture/                           # Architectural diagrams, designs & Star Schema
+│   ├── Dashboard_Charts_1.png
+│   ├── Dashboard_Charts_2.png
+│   ├── Dual_Pipeline_Flow.png
+│   ├── High_Level_Architecture.png
+│   ├── Low_Level_Design.png
+│   ├── Pipeline_Orchestration.png
+│   ├── Star_Schema.png
+│   └── README.md
+├── Dashboard/                              # Stakeholder slide decks & presentations (.pptx)
+│   ├── PROJECT_NEXUS_Dual_Pipeline_Architecture.pptx
+│   ├── PROJECT_NEXUS_Executive_Presentation.pptx
+│   ├── PROJECT_NEXUS_Presentation.pptx
+│   ├── PROJECT_NEXUS_Vector_Presentation.pptx
+│   └── README.md
+├── Data Ingestion/                         # Azure Databricks Medallion Lakehouse Notebooks
 │   ├── Databricks_Notebooks/
-│   │   ├── 01_Bronze_Ingestion.scala   # ADLS Gen2 raw ingestion into Bronze Delta with audit metadata
-│   │   ├── 02_Silver_Transformation.scala # Cleansing, deduplication, schema validation & quarantine
-│   │   ├── 03_Gold_Transformation.scala   # Star schema creation (dim_*, fact_sales) & aggregate marts
-│   │   └── 04_Data_Quality_Checks.scala   # 10 automated DQ test suites & audit reports
-│   └── Execution_Evidence/             # Run evidence and verified execution logs
-├── Documentation/
-│   ├── delta-vs-iceberg.md             # Technical comparison: Delta Lake vs. Apache Iceberg
-│   └── requirements-traceability.md    # Business requirements matrix & traceability (BR-01 to BR-14)
-├── Real_Time_Streaming/
-│   └── README.md                       # Overview of streaming components and lifecycle
-├── data/
-│   └── nexus/
-│       ├── batch/                      # Historical raw CSV datasets (customers, products, orders)
-│       └── streaming/                  # Sample JSONL order streams, schemas & micro-batches
-├── docker/
-│   ├── Dockerfile.consumer             # Production multi-stage Docker image for Scala Spark consumer
-│   ├── Dockerfile.producer             # Lightweight Python producer container
-│   └── compose.yaml                    # Local multi-service cluster definition (Kafka, Zookeeper, Spark)
-├── docs/
-│   ├── local-streaming-guide.md        # Comprehensive developer operations guide
-│   ├── requirements-matrix.md          # Capstone requirements validation matrix
-│   └── star-schema-mapping.md          # Star schema mappings & streaming integration design
-├── k8s/
-│   ├── consumer-deployment.yaml        # Kubernetes Deployment & PVC manifests for streaming consumer
-│   └── k8s-optional-publisher.yaml     # Kubernetes manifest for event publisher
-├── producer/
-│   └── replay_events.py                # Configurable Kafka event replay utility with synthetic jitter
-├── scripts/
-│   └── check_sample.py                 # File sanity check & validation script
-├── src/
-│   ├── main/scala/com/nexus/
-│   │   ├── StreamingJob.scala          # Main streaming pipeline (Bronze, Reject, Valid, Windows)
-│   │   ├── IcebergPublishJob.scala     # Iceberg MERGE INTO job for analytical warehouse
-│   │   ├── IcebergEvidenceJob.scala    # Iceberg snapshot verification, time-travel & schema evolution
-│   │   ├── InspectOutputs.scala        # Terminal utility to inspect Parquet outputs
-│   │   └── config/                     # Pipeline configuration definitions
-│   └── test/scala/com/nexus/           # Comprehensive ScalaTest unit test suites
-├── build.sbt                           # Scala build definitions, dependencies & packaging configs
-└── README.md                           # Master Project Documentation
+│   │   ├── 01_Bronze_Ingestion.scala       # ADLS Gen2 raw -> Bronze Delta tables
+│   │   ├── 02_Silver_Transformation.scala  # Cleansing, quarantine & deduplication
+│   │   ├── 03_Gold_Transformation.scala    # Kimball Star Schema & business marts
+│   │   └── 04_Data_Quality_Checks.scala    # 10-point automated DQ verification
+│   └── README.md
+├── Datasets/                               # Raw & incremental sample retail data
+│   ├── nexus/
+│   │   ├── batch/                          # Historical CSVs (customers, orders, products, updates)
+│   │   └── streaming/                      # Micro-batch JSON & Kafka keyed payloads
+│   └── README.md
+├── Development/                            # Core Scala/Spark streaming engine & configuration
+│   ├── docker/                             # Production Dockerfiles (streaming & producer)
+│   ├── project/                            # sbt build properties & dependencies
+│   ├── src/                                # Scala sources & test suites
+│   ├── build.sbt                           # sbt build definition (Spark 3.5, Iceberg 1.5)
+│   ├── compose.yaml                        # Local Kafka & Redpanda Console stack
+│   ├── requirements.txt                    # Python producer dependencies
+│   └── README.md
+├── Logging/                                # Pipeline run logs & audit evidence
+│   ├── Execution_Evidence/                 # Batch & streaming verification evidence
+│   └── README.md
+├── Real_Time_Streaming/                    # Dedicated end-to-end Real-Time Streaming module
+│   ├── docker/                             # Container specifications
+│   ├── k8s/                                # Kubernetes production manifests
+│   ├── producer/                           # Python Kafka event replayer
+│   ├── scripts/                            # Verification & run scripts
+│   ├── src/                                # Streaming engine & Iceberg publishers
+│   ├── build.sbt                           # Dedicated sbt build
+│   ├── compose.yaml                        # Streaming orchestration compose
+│   ├── requirements.txt                    # Python runtime requirements
+│   └── README.md
+├── Testing/                                # Unit tests, schema checks & CI guidelines
+│   ├── check_sample.py                     # Streaming sample verifier
+│   ├── EventTransformsSpec.scala           # ScalaTest specification
+│   ├── CI_CD_README.md                     # CI/CD operational guide
+│   └── README.md
+├── docs/                                   # Platform documentation & design matrices
+│   ├── delta-vs-iceberg.md                 # Table format evaluation
+│   ├── local-streaming-guide.md            # Developer execution runbook
+│   ├── requirements-matrix.md              # Requirements traceability
+│   ├── star-schema-mapping.md              # Data dictionary & dimensional mappings
+│   └── README.md
+├── .dockerignore
+├── .gitattributes
+├── .gitignore
+└── README.md
 ```
 
 ---
@@ -213,13 +233,13 @@ PROJECT_NEXUS/
 
 PROJECT NEXUS operates on two distinct data workloads:
 
-### 1. Historical Batch Datasets (`data/nexus/batch/raw/`)
+### 1. Historical Batch Datasets (`Datasets/nexus/batch/raw/`)
 - **`customers.csv`:** Customer demographics (`customer_id`, `customer_name`, `email`, `city`, `signup_date`).
 - **`products.csv`:** Product catalog (`product_id`, `product_name`, `category`, `unit_price`, `active`).
 - **`orders.csv`:** Transaction records (`order_id`, `customer_id`, `product_id`, `quantity`, `order_date`, `order_status`, `last_updated`).
 - **`orders_updates.csv` & `orders_v2.csv`:** Incremental updates and evolved schema batches for change data capture testing.
 
-### 2. Real-Time Streaming Events (`data/nexus/streaming/`)
+### 2. Real-Time Streaming Events (`Datasets/nexus/streaming/`)
 - **`order_events.jsonl`:** Continuous retail event streams containing 62 verified micro-messages.
 ```json
 {
@@ -462,82 +482,6 @@ pie title Delivered Order Status Distribution
 | **Units Sold** | **128 Units** | Total item volume across delivered transactions |
 | **Active Customer Base** | **23 Customers** | Transacting customers across active markets |
 | **Catalog Breadth** | **10 Products** | High-velocity product categories represented |
-
----
-
-# 📁 Repository Structure
-
-The repository is modularly structured according to enterprise data platform architecture standards:
-
-```
-PROJECT_NEXUS_Retail_Intelligence_Real-Time_Data_Analytics/
-├── .github/
-│   └── workflows/
-│       └── ci.yml                          # Continuous Integration & build validation
-├── Architecture/                           # Architectural diagrams, designs & Star Schema
-│   ├── Dashboard_Charts_1.png
-│   ├── Dashboard_Charts_2.png
-│   ├── Dual_Pipeline_Flow.png
-│   ├── High_Level_Architecture.png
-│   ├── Low_Level_Design.png
-│   ├── Pipeline_Orchestration.png
-│   ├── Star_Schema.png
-│   └── README.md
-├── Dashboard/                              # Stakeholder slide decks & presentations (.pptx)
-│   ├── PROJECT_NEXUS_Dual_Pipeline_Architecture.pptx
-│   ├── PROJECT_NEXUS_Executive_Presentation.pptx
-│   ├── PROJECT_NEXUS_Presentation.pptx
-│   ├── PROJECT_NEXUS_Vector_Presentation.pptx
-│   └── README.md
-├── Data Ingestion/                         # Azure Databricks Medallion Lakehouse Notebooks
-│   ├── Databricks_Notebooks/
-│   │   ├── 01_Bronze_Ingestion.scala       # ADLS Gen2 raw -> Bronze Delta tables
-│   │   ├── 02_Silver_Transformation.scala  # Cleansing, quarantine & deduplication
-│   │   ├── 03_Gold_Transformation.scala    # Kimball Star Schema & business marts
-│   │   └── 04_Data_Quality_Checks.scala    # 10-point automated DQ verification
-│   └── README.md
-├── Datasets/                               # Raw & incremental sample retail data
-│   ├── nexus/
-│   │   ├── batch/                          # Historical CSVs (customers, orders, products, updates)
-│   │   └── streaming/                      # Micro-batch JSON & Kafka keyed payloads
-│   └── README.md
-├── Development/                            # Core Scala/Spark streaming engine & configuration
-│   ├── docker/                             # Production Dockerfiles (streaming & producer)
-│   ├── project/                            # sbt build properties & dependencies
-│   ├── src/                                # Scala sources & test suites
-│   ├── build.sbt                           # sbt build definition (Spark 3.5, Iceberg 1.5)
-│   ├── compose.yaml                        # Local Kafka & Redpanda Console stack
-│   ├── requirements.txt                    # Python producer dependencies
-│   └── README.md
-├── Logging/                                # Pipeline run logs & audit evidence
-│   ├── Execution_Evidence/                 # Batch & streaming verification evidence
-│   └── README.md
-├── Real_Time_Streaming/                    # Dedicated end-to-end Real-Time Streaming module
-│   ├── docker/                             # Container specifications
-│   ├── k8s/                                # Kubernetes production manifests
-│   ├── producer/                           # Python Kafka event replayer
-│   ├── scripts/                            # Verification & run scripts
-│   ├── src/                                # Streaming engine & Iceberg publishers
-│   ├── build.sbt                           # Dedicated sbt build
-│   ├── compose.yaml                        # Streaming orchestration compose
-│   ├── requirements.txt                    # Python runtime requirements
-│   └── README.md
-├── Testing/                                # Unit tests, schema checks & CI guidelines
-│   ├── check_sample.py                     # Streaming sample verifier
-│   ├── EventTransformsSpec.scala           # ScalaTest specification
-│   ├── CI_CD_README.md                     # CI/CD operational guide
-│   └── README.md
-├── docs/                                   # Platform documentation & design matrices
-│   ├── delta-vs-iceberg.md                 # Table format evaluation
-│   ├── local-streaming-guide.md            # Developer execution runbook
-│   ├── requirements-matrix.md              # Requirements traceability
-│   ├── star-schema-mapping.md              # Data dictionary & dimensional mappings
-│   └── README.md
-├── .dockerignore
-├── .gitattributes
-├── .gitignore
-└── README.md
-```
 
 ---
 
